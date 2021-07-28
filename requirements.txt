@@ -13,3 +13,6 @@ typing-extensions==3.10.0.0
 urllib3==1.26.6
 Werkzeug==2.0.1
 zipp==3.5.0
+asgiref==3.4.1
+h11==0.12.0
+uvicorn==0.14.0
