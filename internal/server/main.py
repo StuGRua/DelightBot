@@ -1,9 +1,10 @@
 import datetime
 import hmac
+import json
 import time
 import requests
 from functools import wraps
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify,redirect
 import re
 
 app = Flask(__name__)
@@ -72,19 +73,31 @@ def random_2th_img(request_json):
 @quick_reply
 def query_510_status(request_json):
     """
-
+    'face': 'http://i2.hdslb.com/bfs/face/c7ec7af2c0f456545c96daeffbef9b3762dc3363.jpg',
     :return:
     """
     all_vtb = query_vtb_all()
     for item in all_vtb:
         print(item)
         if item["uname"] == "阿梓从小就很可爱":
-            status = "在播" if item["online"] == 1 else "没播"
-            return "VTB:{}\n直播间标题：{}\n直播状态：{}".format(item["uname"], item["title"], status)
+            status = "在播" if item["online"] != 0 else "没播"
+            if status == "在播":
+                lt_pre = item['time']
+            else:
+                lt_pre = item['lastLive']["time"]
+            lt = time.localtime(int(str(lt_pre)[:10]))
+            last_time = time.strftime("%Y-%m-%d/%H:%M:%S", lt)
+            return "{}\n[CQ:image,file={}]\n直播间标题：{}\n直播状态：{}\n最近开播时间：{}\n直播间链接：https://live.bilibili.com/{}\n".format(item["uname"], item["face"],
+                                                                                    item["title"], status,
+                                                                                    last_time,item['roomid'])
 
 
 @quick_reply
 def query_specific_vtb(request_json):
+    return query_vtb(request_json)
+
+
+def query_vtb(request_json):
     all_vtb = query_vtb_all()
     _message_replace_at = str(
         request_json["message"].replace("[CQ:at,qq=1728158137]", "").replace("[CQ:at,qq=1728158137] ",
@@ -98,10 +111,19 @@ def query_specific_vtb(request_json):
             print("匹配ing")
             print(item)
             status = "在播" if item["online"] != 0 else "没播"
-            lt = time.localtime(int(str(item['lastLive']["time"])[:10]))
-            last_time = time.strftime("%Y-%m-%d %H:%M:%S", lt)
+            if status == "在播":
+                lt_pre = item['time']
+            else:
+                lt_pre = item['lastLive']["time"] if item['lastLive'] else 0
+            if lt_pre != 0:
+                lt = time.localtime(int(str(lt_pre)[:10]))
+                last_time = time.strftime("%Y-%m-%d/%H:%M:%S", lt)
+            else:
+                last_time = "时间消失在石头门里面了..."
             result.append(
-                "VTB:{}\n直播间标题：{}\n直播状态：{}\n最近开播时间：{}\n".format(item["uname"], item["title"], status, last_time))
+                "VTB:{}\n[CQ:image,file={}]\n直播间标题：{}\n直播状态：{}\n最近开播时间：{}\n直播间链接：https://live.bilibili.com/{}\n".format(item["uname"], item["face"],
+                                                                                    item["title"], status,
+                                                                                    last_time,item['roomid']))
     res_str = ""
     print(result)
     if len(result) != 0:
@@ -115,6 +137,30 @@ def query_specific_vtb(request_json):
 def query_vtb_all():
     full_info = requests.get("https://api.vtbs.moe/v1/fullInfo")
     return full_info.json()
+
+
+@quick_reply
+def query_room_and_player(request_json):
+    _message_replace_at = str(
+        request_json["message"].replace("[CQ:at,qq=1728158137]", "").replace("[CQ:at,qq=1728158137] ",
+                                                                             "").replace(" ", ""))
+    _name = _message_replace_at.split("查询主播-")
+    _name = _name[len(_name) - 1]
+    resp_room = requests.get("https://api.live.bilibili.com/room/v1/Room/room_init", params={"id": int(_name), }).json()
+
+    if resp_room["code"] != 0:
+        return "直播间不存在哦"
+    else:
+        room_data = resp_room["data"]
+        status = "在播" if room_data["live_status"] == 1 else "没播"
+        lt = time.localtime(room_data["live_time"])
+        last_time = time.strftime("%Y-%m-%d/%H:%M:%S", lt)
+        print(room_data["uid"])
+        user_resp = requests.get("http://api.live.bilibili.com/live_user/v1/Master/info", params={"uid":room_data["uid"],}).json()
+        print(user_resp)
+        user_data = user_resp["data"]["info"]
+        fin_resp = "主播：{}\n直播状态：{}\n最近开播时间：{}\n".format(user_data["uname"], status, last_time)
+        return fin_resp
 
 
 func_entry = {
@@ -140,6 +186,8 @@ def receive():
         return query_510_status(rj)
     elif "查询vtb@" in _message_replace_at:
         return query_specific_vtb(rj)
+    elif "查询主播-" in _message_replace_at:
+        return query_room_and_player(rj)
     else:
         print("未知命令")
         return jsonify({"reply": "李在赣神魔，我怎么听不懂"})
