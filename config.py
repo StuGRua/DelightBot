@@ -3,3 +3,5 @@ server_config = {
     "port": 10009,
     "debug": True
 }
+
+bot_account = 1728158137

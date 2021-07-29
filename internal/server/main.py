@@ -173,7 +173,7 @@ def illegal_request(request_json):
 
 def random_response():
     rd = random.randint(0, len(bot_resp)-1)
-    resp = bot_resp[rd]
+    resp = bot_resp[rd]["content"]
     return resp
 
 
@@ -204,4 +204,4 @@ def receive():
         return query_room_and_player(rj)
     else:
         print("未知命令")
-        return illegal_request()
+        return illegal_request(rj)
