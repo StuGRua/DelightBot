@@ -233,8 +233,11 @@ def get_ms_status():
 def random_response():
     rd = random.randint(0, len(bot_resp) - 1)
     resp = bot_resp[rd]["content"]
-    if resp == "[CQ:share,url=https://live.bilibili.com/510,title={title},image={image},content={content}]":
+    if resp == "随机vtb":
         r_vtb = random_vtb()
+        resp = "随机在播VTB:{}\n[CQ:image,file={}]\n直播间标题：{}\n直播间链接：https://live.bilibili.com/{}\n".format(
+            r_vtb["uname"], r_vtb["face"],
+            r_vtb["title"], r_vtb['roomid'])
         resp = resp.format(title=r_vtb["uname"], image=r_vtb["face"], content=r_vtb["title"])
         LOGGER.info(resp)
     return resp
