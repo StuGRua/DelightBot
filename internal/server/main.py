@@ -5,9 +5,10 @@ import random
 import time
 import requests
 from functools import wraps
-from flask import Flask, request, jsonify,redirect
+from flask import Flask, request, jsonify, redirect
 from internal.utils.json_reader import json_reader
-
+from internal.utils.log import LOGGER
+from config import server_config, minecrafr_server
 
 bot_resp = json_reader("static/bot_response/bot_resp.json")  # object array
 
@@ -20,9 +21,7 @@ def quick_reply(f):
         get_item = []
         for item in args:
             get_item.append(item)
-        print(get_item)
         _uid = get_item[0]["sender"]["user_id"]
-        print(_uid)
         pre_resp = f(*args, **kwargs)
         resp = {"reply": "[CQ:at,qq={}] \n".format(str(_uid)) + pre_resp}
         return resp
@@ -36,7 +35,6 @@ def jrrp(request_json):
     time_today = datetime.datetime.now().strftime("%Y-%m-%d")
     rp_str = str(hash(uid + time_today))
     rp = rp_str[len(rp_str) - 2:]
-    print(rp)
     resp_level = ""
     if int(rp) <= 20:
         resp_level = "哇呜，你今天有点惨"
@@ -70,7 +68,6 @@ def random_2th_img(request_json):
     """
     resp = requests.get("https://img.xjh.me/random_img.php?return=json")
     res = resp.json()["img"]
-    print(res)
     return "[CQ:image,file=https:{}]".format(res)
 
 
@@ -81,7 +78,6 @@ def query_510_status(request_json):
     """
     all_vtb = query_vtb_all()
     for item in all_vtb:
-        print(item)
         if item["uname"] == "阿梓从小就很可爱":
             status = "在播" if item["online"] != 0 else "没播"
             if status == "在播":
@@ -90,9 +86,10 @@ def query_510_status(request_json):
                 lt_pre = item['lastLive']["time"]
             lt = time.localtime(int(str(lt_pre)[:10]))
             last_time = time.strftime("%Y-%m-%d/%H:%M:%S", lt)
-            return "{}\n[CQ:image,file={}]\n直播间标题：{}\n直播状态：{}\n最近开播时间：{}\n直播间链接：https://live.bilibili.com/{}\n".format(item["uname"], item["face"],
-                                                                                    item["title"], status,
-                                                                                    last_time,item['roomid'])
+            return "{}\n[CQ:image,file={}]\n直播间标题：{}\n直播状态：{}\n最近开播时间：{}\n直播间链接：https://live.bilibili.com/{}\n".format(
+                item["uname"], item["face"],
+                item["title"], status,
+                last_time, item['roomid'])
 
 
 @quick_reply
@@ -111,8 +108,7 @@ def query_vtb(request_json):
     for item in all_vtb:
         # print(item)
         if _name.upper() in item["uname"].upper():
-            print("匹配ing")
-            print(item)
+            LOGGER.info("匹配到内容:{}".format(str(item["uname"])))
             status = "在播" if item["online"] != 0 else "没播"
             if status == "在播":
                 lt_pre = item['time']
@@ -124,11 +120,11 @@ def query_vtb(request_json):
             else:
                 last_time = "时间消失在石头门里面了..."
             result.append(
-                "VTB:{}\n[CQ:image,file={}]\n直播间标题：{}\n直播状态：{}\n最近开播时间：{}\n直播间链接：https://live.bilibili.com/{}\n".format(item["uname"], item["face"],
-                                                                                    item["title"], status,
-                                                                                    last_time,item['roomid']))
+                "VTB:{}\n[CQ:image,file={}]\n直播间标题：{}\n直播状态：{}\n最近开播时间：{}\n直播间链接：https://live.bilibili.com/{}\n".format(
+                    item["uname"], item["face"],
+                    item["title"], status,
+                    last_time, item['roomid']))
     res_str = ""
-    print(result)
     if len(result) != 0:
         for item in result:
             res_str += item + "---------\n"
@@ -158,9 +154,8 @@ def query_room_and_player(request_json):
         status = "在播" if room_data["live_status"] == 1 else "没播"
         lt = time.localtime(room_data["live_time"])
         last_time = time.strftime("%Y-%m-%d/%H:%M:%S", lt)
-        print(room_data["uid"])
-        user_resp = requests.get("http://api.live.bilibili.com/live_user/v1/Master/info", params={"uid":room_data["uid"],}).json()
-        print(user_resp)
+        user_resp = requests.get("http://api.live.bilibili.com/live_user/v1/Master/info",
+                                 params={"uid": room_data["uid"], }).json()
         user_data = user_resp["data"]["info"]
         fin_resp = "主播：{}\n直播状态：{}\n最近开播时间：{}\n".format(user_data["uname"], status, last_time)
         return fin_resp
@@ -171,11 +166,36 @@ def illegal_request(request_json):
     return random_response()
 
 
+@quick_reply
+def query_minecraft_server(request_json):
+    return get_ms_status()
+
+@quick_reply
+def help_me(request_json):
+    pre_str = "帮助info：\n[CQ:image,file=static/bot_image/helpme.png]"
+    return pre_str
+
+
+
+def get_ms_status():
+    stat_resp = requests.get(minecrafr_server["panel_host"] + "/api/status/" + minecrafr_server["instance"])
+    stat = stat_resp.json()
+    online_or_not = "正常运行中" if stat["status"] is True else "关闭"
+    if online_or_not == "正常运行中":
+        stat_str = "{0}：{1}\n版本：{2}\n状态：{3}\n在线人数：{4}\n服务器地址：{5}".format(stat["id"], stat["motd"], stat["version"],
+                                                                         online_or_not,
+                                                                         stat["current_players"],
+                                                                         minecrafr_server["game_port"])
+    else:
+        stat_str = "{0}：{1}\n版本：{2}\n状态：{3}||".format(stat["id"], stat["motd"], stat["version"],
+                                                      online_or_not)
+    return stat_str
+
+
 def random_response():
-    rd = random.randint(0, len(bot_resp)-1)
+    rd = random.randint(0, len(bot_resp) - 1)
     resp = bot_resp[rd]["content"]
     return resp
-
 
 
 func_entry = {
@@ -186,10 +206,10 @@ func_entry = {
 @app.route('/', methods=['POST'])
 def receive():
     rj = request.json
-    print(rj)
+    LOGGER.info(str(rj))
     _message_replace_at = rj["message"].replace("[CQ:at,qq=1728158137]", "").replace("[CQ:at,qq=1728158137] ",
                                                                                      "").replace(" ", "")
-    print(_message_replace_at)
+    LOGGER.info(_message_replace_at)
     if "!jrrp" in _message_replace_at:
         return jsonify(jrrp(rj))
     elif _message_replace_at == "？" or _message_replace_at == "?":
@@ -202,6 +222,10 @@ def receive():
         return query_specific_vtb(rj)
     elif "查询主播-" in _message_replace_at:
         return query_room_and_player(rj)
+    elif "MC" == _message_replace_at.upper():
+        return query_minecraft_server(rj)
+    elif "帮帮我" == _message_replace_at or "help" == _message_replace_at:
+        return help_me(rj)
     else:
-        print("未知命令")
+        LOGGER.warning("未知命令")
         return illegal_request(rj)
