@@ -172,7 +172,7 @@ def query_minecraft_server(request_json):
 
 @quick_reply
 def help_me(request_json):
-    pre_str = "帮助info：\n[CQ:image,file=static/bot_image/helpme.png]"
+    pre_str = "帮助info：\n[CQ:image,file=https://raw.githubusercontent.com/StuGRua/DelightBot/main/static/bot_image/helpme.png]"
     return pre_str
 
 
