@@ -10,5 +10,9 @@
   {
     "resp_name": "神奇海螺",
     "content": "[CQ:image,file=https://raw.githubusercontent.com/StuGRua/DelightBot/main/static/bot_image/no_asking.png]"
+  },
+  {
+    "resp_name": "引流",
+    "content": "[CQ:share,url=https://live.bilibili.com/510,title={title},image={image},content={content}]"
   }
 ]

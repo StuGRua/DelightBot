@@ -133,6 +133,17 @@ def query_vtb(request_json):
         return "空空如也捏"
 
 
+def random_vtb():
+    all_vtb = query_vtb_all()
+    online_ones = []
+    for item in all_vtb:
+        if item["online"] != 0:
+            online_ones.append(item)
+    _len = len(online_ones)
+    rd = random.randint(0, _len - 1)
+    return online_ones[rd]
+
+
 def query_vtb_all():
     full_info = requests.get("https://api.vtbs.moe/v1/fullInfo")
     return full_info.json()
@@ -170,11 +181,38 @@ def illegal_request(request_json):
 def query_minecraft_server(request_json):
     return get_ms_status()
 
+
 @quick_reply
 def help_me(request_json):
     pre_str = "帮助info：\n[CQ:image,file=https://raw.githubusercontent.com/StuGRua/DelightBot/main/static/bot_image/helpme.png]"
     return pre_str
 
+
+@quick_reply
+def get_mc_mods(request_json):
+    return get_mc_mods_from_gitee()
+
+
+def get_mc_mods_from_gitee():
+    gitee_config = minecrafr_server["gitee_repo"]
+    url = "https://gitee.com/api/v5/repos/{owner}/{repo}/git/trees/{sha}?recursive=1".format(
+        owner=gitee_config["owner"],
+        repo=gitee_config["repo"],
+        sha=gitee_config["sha"])
+    LOGGER.info(url)
+    repo_tree = requests.get(url).json()
+    LOGGER.info(repo_tree)
+    files = repo_tree["tree"]
+    result = ""
+    assert type(files) == list
+    counter = 0
+    for item in files:
+        if "mods/" in item["path"]:
+            counter += 1
+            result += ("【{}】".format(str(counter)) + item["path"].replace("mods/", "").replace(".jar", "") + "\n")
+        else:
+            pass
+    return result
 
 
 def get_ms_status():
@@ -195,6 +233,10 @@ def get_ms_status():
 def random_response():
     rd = random.randint(0, len(bot_resp) - 1)
     resp = bot_resp[rd]["content"]
+    if resp == "[CQ:share,url=https://live.bilibili.com/510,title={title},image={image},content={content}]":
+        r_vtb = random_vtb()
+        resp = resp.format(title=r_vtb["uname"], image=r_vtb["face"], content=r_vtb["title"])
+        LOGGER.info(resp)
     return resp
 
 
@@ -224,6 +266,8 @@ def receive():
         return query_room_and_player(rj)
     elif "MC" == _message_replace_at.upper():
         return query_minecraft_server(rj)
+    elif "MCMOD" == _message_replace_at.upper():
+        return get_mc_mods(rj)
     elif "帮帮我" == _message_replace_at or "help" == _message_replace_at:
         return help_me(rj)
     else:
