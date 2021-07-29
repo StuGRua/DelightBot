@@ -1,11 +1,15 @@
 import datetime
 import hmac
 import json
+import random
 import time
 import requests
 from functools import wraps
 from flask import Flask, request, jsonify,redirect
-import re
+from internal.utils.json_reader import json_reader
+
+
+bot_resp = json_reader("static/bot_response/bot_resp.json")  # object array
 
 app = Flask(__name__)
 
@@ -73,7 +77,6 @@ def random_2th_img(request_json):
 @quick_reply
 def query_510_status(request_json):
     """
-    'face': 'http://i2.hdslb.com/bfs/face/c7ec7af2c0f456545c96daeffbef9b3762dc3363.jpg',
     :return:
     """
     all_vtb = query_vtb_all()
@@ -163,9 +166,20 @@ def query_room_and_player(request_json):
         return fin_resp
 
 
+@quick_reply
+def illegal_request(request_json):
+    return random_response()
+
+
+def random_response():
+    rd = random.randint(0, len(bot_resp)-1)
+    resp = bot_resp[rd]
+    return resp
+
+
+
 func_entry = {
     "jrrp": jrrp,
-
 }
 
 
@@ -190,4 +204,4 @@ def receive():
         return query_room_and_player(rj)
     else:
         print("未知命令")
-        return jsonify({"reply": "李在赣神魔，我怎么听不懂"})
+        return illegal_request()
