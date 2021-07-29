@@ -1,0 +1,22 @@
+{
+  ".or": [
+    {
+      "message_type": "private"
+    },
+    {
+      "message_type": "group",
+      "group_id": {
+        ".in": [
+          514394960,954591902
+        ]
+      },
+      "raw_message": {
+        ".contains": "[CQ:at,qq=1728158137]"
+      }
+      ,
+      "anonymous": {
+        ".eq": null
+      }
+    }
+  ]
+}
