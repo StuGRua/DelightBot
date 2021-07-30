@@ -233,10 +233,20 @@ def get_ms_status():
 def random_response():
     rd = random.randint(0, len(bot_resp) - 1)
     resp = bot_resp[rd]["content"]
-    if resp == "[CQ:share,url=https://live.bilibili.com/510,title={title},image={image},content={content}]":
+    if resp == "随机vtb":
         r_vtb = random_vtb()
-        resp = resp.format(title=r_vtb["uname"], image=r_vtb["face"], content=r_vtb["title"])
+        LOGGER.info("vtb info{}".format(str(r_vtb)))
+        resp = "VTB:{title}\n[CQ:image,file={image}]\n直播间标题：{content}\n直播间链接：https://live.bilibili.com/{roomid}\n".format(
+            title=r_vtb["uname"], image=r_vtb["face"], content=r_vtb["title"], roomid=r_vtb['roomid'])
         LOGGER.info(resp)
+    return resp
+
+
+@quick_reply
+def random_vtb_as_query(request_json):
+    r_vtb = random_vtb()
+    resp = "VTB:{title}\n[CQ:image,file={image}]\n直播间标题：{content}\n直播间链接：https://live.bilibili.com/{roomid}\n".format(
+        title=r_vtb["uname"], image=r_vtb["face"], content=r_vtb["title"], roomid=r_vtb['roomid'])
     return resp
 
 
@@ -268,6 +278,8 @@ def receive():
         return query_minecraft_server(rj)
     elif "MCMOD" == _message_replace_at.upper():
         return get_mc_mods(rj)
+    elif "随机vtb" == _message_replace_at:
+        return random_vtb_as_query(rj)
     elif "帮帮我" == _message_replace_at or "help" == _message_replace_at:
         return help_me(rj)
     else:
