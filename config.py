@@ -3,7 +3,9 @@ server_config = {
     "port": 10009,
     "debug": True
 }
-
+bot_host = {
+    "main": "http://127.0.0.1:5700"
+}
 bot_account = 1728158137
 
 minecrafr_server = {
@@ -16,3 +18,4 @@ minecrafr_server = {
         "sha": "main"
     }
 }
+
