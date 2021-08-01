@@ -25,6 +25,7 @@ def quick_reply(f):
         _uid = get_item[0]["sender"]["user_id"]
         pre_resp = f(*args, **kwargs)
         resp = {"reply": "[CQ:at,qq={}] \n".format(str(_uid)) + pre_resp}
+        LOGGER.info(str(resp))
         return resp
 
     return decorated

@@ -24,7 +24,7 @@ def bot_reply_header(f):
     return decorated
 
 
-@scheduler.task('interval', id='chaos_func', seconds=1000, misfire_grace_time=900)
+@scheduler.task('interval', id='chaos_func', seconds=600, misfire_grace_time=60)
 def chaos_func():
     t = json_reader("static/times.json")
     t["chaos_times"] += 1
@@ -33,7 +33,7 @@ def chaos_func():
     resp = srv_list[rf]()
     body = {
         "group_id": __group,
-        "message": "凯撒罗伯特喵喵电台：\n总次数：{}\n".format(str(t))+resp,
+        "message": "凯撒罗伯特喵喵电台：\n总次数：{}\n".format(str(t["chaos_times"]))+resp,
     }
     resp = requests.post(url="{}/send_group_msg".format(bot_host["main"]), json=body)
     print(resp)
