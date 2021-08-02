@@ -1,18 +1,18 @@
 [
   {
     "resp_name": "ma_sensei",
-    "content":"ÀîÔÚ¸ÓÉñÄ§£¬ÎÒÔõÃ´Ìı²»¶®"
+    "content":"æåœ¨èµ£ç¥é­”ï¼Œæˆ‘æ€ä¹ˆå¬ä¸æ‡‚"
   },
   {
     "resp_name": "2233",
-    "content": "Õâ¸öÎÊÌâÄãÎÊ2233Ò²²»»áÓĞ´ğ°¸µÄÅ¶"
+    "content": "è¿™ä¸ªé—®é¢˜ä½ é—®2233ä¹Ÿä¸ä¼šæœ‰ç­”æ¡ˆçš„å“¦"
   },
   {
-    "resp_name": "ÉñÆæº£Âİ",
+    "resp_name": "ç¥å¥‡æµ·èº",
     "content": "[CQ:image,file=https://raw.githubusercontent.com/StuGRua/DelightBot/main/static/bot_image/no_asking.png]"
   },
   {
-    "resp_name": "ÒıÁ÷",
-    "content": "Ëæ»úvtb"
+    "resp_name": "å¼•æµ",
+    "content": "éšæœºvtb"
   }
 ]

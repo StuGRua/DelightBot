@@ -1,11 +1,11 @@
 import requests
 
-from config import minecrafr_server
+from config import minecraft_server
 from internal.utils.log import LOGGER
 
 
 def get_mc_mods_from_gitee():
-    gitee_config = minecrafr_server["gitee_repo"]
+    gitee_config = minecraft_server["gitee_repo"]
     url = "https://gitee.com/api/v5/repos/{owner}/{repo}/git/trees/{sha}?recursive=1".format(
         owner=gitee_config["owner"],
         repo=gitee_config["repo"],
@@ -27,14 +27,14 @@ def get_mc_mods_from_gitee():
 
 
 def get_ms_status():
-    stat_resp = requests.get(minecrafr_server["panel_host"] + "/api/status/" + minecrafr_server["instance"])
+    stat_resp = requests.get(minecraft_server["panel_host"] + "/api/status/" + minecraft_server["instance"])
     stat = stat_resp.json()
     online_or_not = "正常运行中" if stat["status"] is True else "关闭"
     if online_or_not == "正常运行中":
         stat_str = "{0}：{1}\n版本：{2}\n状态：{3}\n在线人数：{4}\n服务器地址：{5}".format(stat["id"], stat["motd"], stat["version"],
                                                                          online_or_not,
                                                                          stat["current_players"],
-                                                                         minecrafr_server["game_port"])
+                                                                         minecraft_server["game_port"])
     else:
         stat_str = "{0}：{1}\n版本：{2}\n状态：{3}||".format(stat["id"], stat["motd"], stat["version"],
                                                       online_or_not)

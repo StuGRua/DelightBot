@@ -42,13 +42,9 @@ def query_vtb_all():
     return full_info.json()
 
 
-def query_vtb(request_json):
+def query_vtb(_name: str):
     all_vtb = query_vtb_all()
-    _message_replace_at = str(
-        request_json["message"].replace("[CQ:at,qq=1728158137]", "").replace("[CQ:at,qq=1728158137] ",
-                                                                             "").replace(" ", ""))
-    _name = _message_replace_at.split("查询vtb@")
-    _name = _name[len(_name) - 1]
+
     result = []
     for item in all_vtb:
         # print(item)
@@ -76,3 +72,20 @@ def query_vtb(request_json):
         return res_str
     else:
         return "空空如也捏"
+
+
+def query_player(_name: str):
+    resp_room = requests.get("https://api.live.bilibili.com/room/v1/Room/room_init", params={"id": int(_name), }).json()
+
+    if resp_room["code"] != 0:
+        return "直播间不存在哦"
+    else:
+        room_data = resp_room["data"]
+        status = "在播" if room_data["live_status"] == 1 else "没播"
+        lt = time.localtime(room_data["live_time"])
+        last_time = time.strftime("%Y-%m-%d/%H:%M:%S", lt)
+        user_resp = requests.get("http://api.live.bilibili.com/live_user/v1/Master/info",
+                                 params={"uid": room_data["uid"], }).json()
+        user_data = user_resp["data"]["info"]
+        fin_resp = "主播：{}\n直播状态：{}\n最近开播时间：{}\n".format(user_data["uname"], status, last_time)
+        return fin_resp

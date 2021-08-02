@@ -1,19 +1,17 @@
-import datetime
-import hmac
 import json
-import random
 import time
-import requests
 from functools import wraps
-from flask import Flask, request, jsonify, redirect
-from internal.service.apis import random_2th_img_resp,random_cos_img_resp
+
+import requests
+from flask import request, Flask
 from internal.service.aliyun_oss import random_audio_zjw
-from internal.service.bili import random_vtb_id, random_response, query_vtb, query_vtb_all
+from internal.service.apis import random_2th_img_resp, random_cos_img_resp
+from internal.service.bili import random_vtb_id, random_response, query_vtb, query_vtb_all, query_player
+from internal.service.jrrp import jrrp
 from internal.service.mc import get_mc_mods_from_gitee, get_ms_status
-from internal.utils.json_reader import json_reader
 from internal.utils.log import LOGGER
-from config import server_config, minecrafr_server
-from internal.flask_core.core import app
+
+app = Flask("RBT")
 
 
 def quick_reply(f):
@@ -32,22 +30,9 @@ def quick_reply(f):
 
 
 @quick_reply
-def jrrp(request_json):
-    uid = str(request_json["sender"]["user_id"])
-    time_today = datetime.datetime.now().strftime("%Y-%m-%d")
-    rp_str = str(hash(uid + time_today))
-    rp = rp_str[len(rp_str) - 2:]
-    resp_level = ""
-    if int(rp) <= 20:
-        resp_level = "哇呜，你今天有点惨"
-    elif 20 < int(rp) <= 60:
-        resp_level = "看来还得加把劲啊"
-    elif 60 < int(rp) <= 80:
-        resp_level = "好像运气还可以诶"
-    elif 80 < int(rp) <= 98:
-        resp_level = "今日海豹"
-    elif int(rp) == 99:
-        resp_level = "欧皇！"
+def srv_jrrp(request_json):
+    uid = request_json["sender"]["user_id"]
+    rp, resp_level = jrrp(uid)
     return "今日人品：{}\n{}".format(rp, resp_level)
 
 
@@ -75,25 +60,17 @@ def query_510_status(request_json):
     """
     :return:
     """
-    all_vtb = query_vtb_all()
-    for item in all_vtb:
-        if item["uname"] == "阿梓从小就很可爱":
-            status = "在播" if item["online"] != 0 else "没播"
-            if status == "在播":
-                lt_pre = item['time']
-            else:
-                lt_pre = item['lastLive']["time"]
-            lt = time.localtime(int(str(lt_pre)[:10]))
-            last_time = time.strftime("%Y-%m-%d/%H:%M:%S", lt)
-            return "{}\n[CQ:image,file={}]\n直播间标题：{}\n直播状态：{}\n最近开播时间：{}\n直播间链接：https://live.bilibili.com/{}\n".format(
-                item["uname"], item["face"],
-                item["title"], status,
-                last_time, item['roomid'])
+    return query_vtb("阿梓")
 
 
 @quick_reply
 def query_specific_vtb(request_json):
-    return query_vtb(request_json)
+    _message_replace_at = str(
+        request_json["message"].replace("[CQ:at,qq=1728158137]", "").replace("[CQ:at,qq=1728158137] ",
+                                                                             "").replace(" ", ""))
+    _name = _message_replace_at.split("查询vtb@")
+    _name = _name[len(_name) - 1]
+    return query_vtb(_name)
 
 
 @quick_reply
@@ -103,20 +80,7 @@ def query_room_and_player(request_json):
                                                                              "").replace(" ", ""))
     _name = _message_replace_at.split("查询主播-")
     _name = _name[len(_name) - 1]
-    resp_room = requests.get("https://api.live.bilibili.com/room/v1/Room/room_init", params={"id": int(_name), }).json()
-
-    if resp_room["code"] != 0:
-        return "直播间不存在哦"
-    else:
-        room_data = resp_room["data"]
-        status = "在播" if room_data["live_status"] == 1 else "没播"
-        lt = time.localtime(room_data["live_time"])
-        last_time = time.strftime("%Y-%m-%d/%H:%M:%S", lt)
-        user_resp = requests.get("http://api.live.bilibili.com/live_user/v1/Master/info",
-                                 params={"uid": room_data["uid"], }).json()
-        user_data = user_resp["data"]["info"]
-        fin_resp = "主播：{}\n直播状态：{}\n最近开播时间：{}\n".format(user_data["uname"], status, last_time)
-        return fin_resp
+    return query_player(_name)
 
 
 @quick_reply
@@ -163,11 +127,6 @@ def weibo_hot_now(request_json):
     return resp_str
 
 
-func_entry = {
-    "jrrp": jrrp,
-}
-
-
 @app.route('/', methods=['POST'])
 def receive():
     rj = request.json
@@ -176,7 +135,7 @@ def receive():
                                                                                      "").replace(" ", "")
     LOGGER.info(_message_replace_at)
     if "!jrrp" in _message_replace_at:
-        return jsonify(jrrp(rj))
+        return srv_jrrp(rj)
     elif _message_replace_at == "？" or _message_replace_at == "?":
         return resp_your_question_mark(rj)
     elif "来点二次元" in _message_replace_at or "老婆" in _message_replace_at:
