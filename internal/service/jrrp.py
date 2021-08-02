@@ -5,17 +5,17 @@ from internal.utils.log import LOGGER
 
 def jrrp(userid: int):
     uid = str(userid)
-    r = get_conn()
-    res = r.get(name="jrrp:{}".format(uid))
-    if res is not None:
-        LOGGER.info("jrrp已存在，直接读取：{}".format(res))
-        rp = res
-    else:
-        time_today = datetime.datetime.now().strftime("%Y-%m-%d")
-        rp_str = str(hash(uid + time_today))
-        rp = rp_str[len(rp_str) - 2:]
-        LOGGER.info("jrrp不存在，重新生成：{}".format(rp))
-        r.set(name="jrrp:{}".format(uid), value=rp, ex=60*60*24)
+    with get_conn() as r:
+        res = r.get(name="jrrp:{}".format(uid))
+        if res is not None:
+            LOGGER.info("jrrp已存在，直接读取：{}".format(res))
+            rp = res
+        else:
+            time_today = datetime.datetime.now().strftime("%Y-%m-%d")
+            rp_str = str(hash(uid + time_today))
+            rp = rp_str[len(rp_str) - 2:]
+            LOGGER.info("jrrp不存在，重新生成：{}".format(rp))
+            r.set(name="jrrp:{}".format(uid), value=rp, ex=60*60*24)
     resp_level = ""
     if int(rp) <= 20:
         resp_level = "哇呜，你今天有点惨"
