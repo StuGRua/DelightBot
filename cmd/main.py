@@ -1,5 +1,6 @@
 from flask_apscheduler import APScheduler
 from internal.job.chaos import chaos_func
+from internal.job.crawler_xiachufang import get_foods_job
 from internal.server.main import app
 import atexit
 import fcntl
@@ -13,7 +14,9 @@ def start_server():
         scheduler = APScheduler()
         scheduler.init_app(app)
         scheduler.start()
-        scheduler.add_job(func=chaos_func, id='apscheduler_add', args=None, trigger='interval', minutes=0.5,
+        scheduler.add_job(func=chaos_func, id='apscheduler_chaos', args=None, trigger='interval', minutes=30,
+                          replace_existing=True)
+        scheduler.add_job(func=get_foods_job, id='apscheduler_xcf', args=None, trigger='interval', minutes=120,
                           replace_existing=True)
     except Exception as e:
         LOGGER.warning("Locked on scheduler.lock")

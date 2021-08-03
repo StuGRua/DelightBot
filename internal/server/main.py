@@ -10,7 +10,7 @@ from internal.service.bili import random_vtb_id, random_response, query_vtb, que
 from internal.service.jrrp import jrrp
 from internal.service.mc import get_mc_mods_from_gitee, get_ms_status
 from internal.utils.log import LOGGER
-
+from  internal.service.what_we_eat import query_food
 app = Flask("RBT")
 
 
@@ -127,6 +127,9 @@ def weibo_hot_now(request_json):
     return resp_str
 
 
+@quick_reply
+def eat_what(request_json):
+    return query_food()
 @app.route('/', methods=['POST'])
 def receive():
     rj = request.json
@@ -158,6 +161,8 @@ def receive():
         return random_cos_pic(rj)
     elif "微博" in _message_replace_at:
         return weibo_hot_now(rj)
+    elif "吃什么" in _message_replace_at:
+        return eat_what(rj)
     elif "帮帮我" == _message_replace_at or "help" == _message_replace_at:
         return help_me(rj)
     else:
