@@ -6,7 +6,7 @@ import requests
 from flask import request, Flask
 from internal.service.aliyun_oss import random_audio_zjw
 from internal.service.apis import random_2th_img_resp, random_cos_img_resp
-from internal.service.bili import random_vtb_id, random_response, query_vtb, query_vtb_all, query_player
+from internal.service.bili import random_vtb_id, random_response, query_vtb, query_vtb_all, query_player_status_str
 from internal.service.jrrp import jrrp
 from internal.service.mc import get_mc_mods_from_gitee, get_ms_status
 from internal.utils.log import LOGGER
@@ -80,7 +80,7 @@ def query_room_and_player(request_json):
                                                                              "").replace(" ", ""))
     _name = _message_replace_at.split("查询主播-")
     _name = _name[len(_name) - 1]
-    return query_player(_name)
+    return query_player_status_str(_name)
 
 
 @quick_reply

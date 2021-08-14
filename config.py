@@ -22,4 +22,11 @@ minecraft_server = {
         "sha": "main"
     }
 }
-
+# DD的主播！v=房间号
+DD_players = {
+    "阿梓": 510,
+    "api": 92613,
+    "冰糖io": 876396
+}
+# 广播的群
+DD_groups = [514394960]

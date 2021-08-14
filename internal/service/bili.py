@@ -74,7 +74,7 @@ def query_vtb(_name: str):
         return "空空如也捏"
 
 
-def query_player(_name: str):
+def query_player_status_str(_name: str):
     resp_room = requests.get("https://api.live.bilibili.com/room/v1/Room/room_init", params={"id": int(_name), }).json()
 
     if resp_room["code"] != 0:
@@ -82,10 +82,40 @@ def query_player(_name: str):
     else:
         room_data = resp_room["data"]
         status = "在播" if room_data["live_status"] == 1 else "没播"
+        if room_data["live_time"] < 0:
+            room_data["live_time"] = 0
+        LOGGER.info(str(room_data))
         lt = time.localtime(room_data["live_time"])
         last_time = time.strftime("%Y-%m-%d/%H:%M:%S", lt)
         user_resp = requests.get("http://api.live.bilibili.com/live_user/v1/Master/info",
                                  params={"uid": room_data["uid"], }).json()
         user_data = user_resp["data"]["info"]
-        fin_resp = "主播：{}\n直播状态：{}\n最近开播时间：{}\n".format(user_data["uname"], status, last_time)
+        if room_data["live_time"] == 0:
+            fin_resp = "主播：{}\n直播状态：{}\n".format(user_data["uname"], status)
+        else:
+            fin_resp = "主播：{}\n直播状态：{}\n开播时间：{}\n".format(user_data["uname"], status, last_time)
         return fin_resp
+
+
+def query_player_from_rid(rid:int):
+    resp_room = requests.get("https://api.live.bilibili.com/room/v1/Room/room_init", params={"id": rid}).json()
+    return resp_room
+
+# def get_info_from_rid(rid: int) -> dict:
+#     headers = {
+#         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36',
+#     }
+#     resp = requests.get("https://api.live.bilibili.com/room/v1/Room/room_init?id="+str(rid), headers=headers).json()
+#     return resp
+
+
+# def get_status_from_rid(rid: int):
+#     """
+#
+#     :param rid: 房间id
+#     :return: 播放状态 0：未开播 1：直播中
+#     """
+#     mid_dict = get_info_from_rid(rid)
+#     print(mid_dict)
+#     status = mid_dict["data"]["live_status"]
+#     return status
