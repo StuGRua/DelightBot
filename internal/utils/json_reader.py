@@ -3,14 +3,14 @@ from internal.utils.log import LOGGER
 
 
 def json_reader(filename: str):
-    with open(filename,"r") as fi:
+    with open(filename, "r", encoding="utf-8") as fi:
         dict_data = json.load(fi)
     return dict_data
 
 
 def json_writer(filename: str, _data):
     try:
-        with open(filename, "w") as fi:
+        with open(filename, "w", encoding="utf-8") as fi:
             json.dump(_data, fi, indent=4)
         return filename
     except Exception as e:

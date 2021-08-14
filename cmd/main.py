@@ -16,7 +16,7 @@ def start_server():
         fcntl.flock(f, fcntl.LOCK_EX | fcntl.LOCK_NB)
         scheduler = BackgroundScheduler()
 
-        scheduler.add_job(func=chaos_func, id='apscheduler_chaos', trigger='interval', minutes=30,
+        scheduler.add_job(func=chaos_func, id='apscheduler_chaos', trigger='interval', minutes=45,
                           replace_existing=True)
         # scheduler.add_job(func=get_foods_job, id='apscheduler_xcf', trigger='interval', minutes=0.1,
         #                   replace_existing=True)

@@ -1,3 +1,4 @@
+from datetime import datetime
 from functools import wraps
 import requests
 import random
@@ -22,6 +23,9 @@ def bot_reply_header(f):
 
 
 def chaos_func():
+    if 1 <= datetime.now().hour <= 8:
+        print("night ver.")
+        return
     t = json_reader("static/times.json")
     t["chaos_times"] += 1
     json_writer("static/times.json", t)
