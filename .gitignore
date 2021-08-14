@@ -1,3 +1,6 @@
 /venv/
 /.idea/
 /张嘉文完整版本/
+*.log
+*.lock
+*.pyc
