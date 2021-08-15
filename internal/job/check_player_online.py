@@ -38,7 +38,7 @@ def check_single_room(rid: int):
                                                                        rid))
                 print(message_sent)
                 groups = json.loads(r.get("dd_groups"))
-                LOGGER.info()
+                LOGGER.info("[DD]groups info:{}".format(str(groups)))
                 assert type(groups) == list
                 for gp in groups:
                     LOGGER.info(gp)

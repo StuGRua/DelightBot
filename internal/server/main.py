@@ -11,6 +11,7 @@ from internal.service.jrrp import jrrp
 from internal.service.mc import get_mc_mods_from_gitee, get_ms_status
 from internal.utils.log import LOGGER
 from  internal.service.what_we_eat import query_food
+from internal.service.add_dd_list import add_dd
 app = Flask("RBT")
 
 
@@ -128,8 +129,25 @@ def weibo_hot_now(request_json):
 
 
 @quick_reply
+def add_dd_interface(request_json):
+    _message_replace_at = str(
+        request_json["message"].replace("[CQ:at,qq=1728158137]", "").replace("[CQ:at,qq=1728158137] ",
+                                                                             "").replace(" ", ""))
+    rid = _message_replace_at.split("添加DD=")
+    rid = rid[len(rid) - 1]
+    res = add_dd(int(rid))
+    pre_str = ""
+    if res:
+        pre_str += res
+    else:
+        pre_str += res
+    return pre_str
+
+
+@quick_reply
 def eat_what(request_json):
     return query_food()
+
 @app.route('/', methods=['POST'])
 def receive():
     rj = request.json
@@ -163,6 +181,8 @@ def receive():
         return weibo_hot_now(rj)
     elif "吃什么" in _message_replace_at:
         return eat_what(rj)
+    elif "添加DD=" in _message_replace_at:
+        return add_dd_interface(rj)
     elif "帮帮我" == _message_replace_at or "help" == _message_replace_at:
         return help_me(rj)
     else:
