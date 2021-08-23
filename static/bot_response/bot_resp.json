@@ -10,9 +10,5 @@
   {
     "resp_name": "神奇海螺",
     "content": "[CQ:image,file=https://raw.githubusercontent.com/StuGRua/DelightBot/main/static/bot_image/no_asking.png]"
-  },
-  {
-    "resp_name": "引流",
-    "content": "随机vtb"
   }
 ]
