@@ -157,7 +157,7 @@ def receive():
     _message_replace_at = rj["message"].replace("[CQ:at,qq=1728158137]", "").replace("[CQ:at,qq=1728158137] ",
                                                                                      "").replace(" ", "")
     LOGGER.info(_message_replace_at)
-    if "!jrrp" in _message_replace_at:
+    if "!jrrp" in _message_replace_at or "！jrrp" in _message_replace_at:
         return srv_jrrp(rj)
     elif _message_replace_at == "？" or _message_replace_at == "?":
         return resp_your_question_mark(rj)
