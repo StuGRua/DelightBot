@@ -30,3 +30,5 @@ DD_players = {
 }
 # 广播的群
 DD_groups = [514394960]
+
+welcome_groups = ["514394960"]

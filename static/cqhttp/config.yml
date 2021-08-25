@@ -62,6 +62,23 @@ default-middlewares: &default
     frequency: 1  # 令牌回复频率, 单位秒
     bucket: 1     # 令牌桶大小
 
+# 事件中间件锚点
+event-middlewares: &event
+  # 访问密钥, 强烈推荐在公网的服务器设置
+  access-token: ''
+  # 事件过滤器文件目录
+  filter: 'event_f.json'
+  # API限速设置
+  # 该设置为全局生效
+  # 原 cqhttp 虽然启用了 rate_limit 后缀, 但是基本没插件适配
+  # 目前该限速设置为令牌桶算法, 请参考:
+  # https://baike.baidu.com/item/%E4%BB%A4%E7%89%8C%E6%A1%B6%E7%AE%97%E6%B3%95/6597000?fr=aladdin
+  rate-limit:
+    enabled: false # 是否启用限速
+    frequency: 1  # 令牌回复频率, 单位秒
+    bucket: 1     # 令牌桶大小
+
+
 database: # 数据库相关设置
   leveldb:
     # 是否启用内置leveldb数据库
@@ -89,7 +106,23 @@ servers:
         <<: *default # 引用默认中间件
       # 反向HTTP POST地址列表
       post:
-        - url: 'http://127.0.0.1:10009' # 地址
+        - url: 'http://127.0.0.1:10009/' # 地址
+          secret: 'x74rtw05'           # 密钥
+#      url: 127.0.0.1:5701 # 地址
+#      secret: 'x74rtw05'          # 密钥
+  - http:
+      # 服务端监听地址
+      host: 127.0.0.1
+      # 服务端监听端口
+      port: 5701
+      # 反向HTTP超时时间, 单位秒
+      # 最小值为5，小于5将会忽略本项设置
+      timeout: 5
+      middlewares:
+        <<: *event # 引用默认中间件
+      # 反向HTTP POST地址列表
+      post:
+        - url: 'http://127.0.0.1:10009/event' # 地址
           secret: 'x74rtw05'           # 密钥
 #      url: 127.0.0.1:5701 # 地址
 #      secret: 'x74rtw05'          # 密钥

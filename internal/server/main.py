@@ -3,15 +3,16 @@ import time
 from functools import wraps
 
 import requests
-from flask import request, Flask
+from flask import request, Flask,g
 from internal.service.aliyun_oss import random_audio_zjw
 from internal.service.apis import random_2th_img_resp, random_cos_img_resp
 from internal.service.bili import random_vtb_id, random_response, query_vtb, query_vtb_all, query_player_status_str
 from internal.service.jrrp import jrrp
 from internal.service.mc import get_mc_mods_from_gitee, get_ms_status
 from internal.utils.log import LOGGER
-from  internal.service.what_we_eat import query_food
+from internal.service.what_we_eat import query_food
 from internal.service.add_dd_list import add_dd
+from internal.service.event.group_welcome import group_welcome_handler
 app = Flask("RBT")
 
 
@@ -148,6 +149,7 @@ def add_dd_interface(request_json):
 def eat_what(request_json):
     return query_food()
 
+
 @app.route('/', methods=['POST'])
 def receive():
     rj = request.json
@@ -188,3 +190,13 @@ def receive():
     else:
         LOGGER.warning("未知命令")
         return illegal_request(rj)
+
+
+@app.route('/event', methods=['POST'])
+def event_handler():
+    # LOGGER.info("event start")
+    rj = request.json
+    # LOGGER.info(str(rj))
+    group_welcome_handler(rj)
+    # LOGGER.info("event end")
+    return ""

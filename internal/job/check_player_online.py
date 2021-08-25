@@ -23,7 +23,7 @@ def check_single_room(rid: int):
         if stat == "1":
             # 在线心跳
             if redis_stat == "1":
-                LOGGER.info("doki doki")
+                # LOGGER.info("doki doki")
                 return
 
             # 检测到开播 redis_stat= 0/2 -> redis_stat = 1
@@ -31,21 +31,21 @@ def check_single_room(rid: int):
                 user_resp = requests.get("http://api.live.bilibili.com/live_user/v1/Master/info",
                                          params={"uid": info["data"]["uid"], }).json()
                 user_data = user_resp["data"]["info"]
-                LOGGER.info("[DD]开播辣")
+                # LOGGER.info("[DD]开播辣")
                 r.set(query_rid, 1)
                 message_sent = "[凯撒喵喵-开播广播]\n主播：{}\n传送门：{}".format(user_data["uname"],
                                                                    "https://live.bilibili.com/" + str(
                                                                        rid))
                 print(message_sent)
                 groups = json.loads(r.get("dd_groups"))
-                LOGGER.info("[DD]groups info:{}".format(str(groups)))
+                # LOGGER.info("[DD]groups info:{}".format(str(groups)))
                 assert type(groups) == list
                 for gp in groups:
-                    LOGGER.info(gp)
+                    # LOGGER.info(gp)
                     robot_send_group_message(gp, message_sent)
         # 离线或轮播 0或2
         else:
-            LOGGER.info("[DD]主播没有在播捏")
+            # LOGGER.info("[DD]主播没有在播捏")
             r.set(query_rid, stat)
 
 
