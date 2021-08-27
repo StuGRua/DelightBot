@@ -23,6 +23,7 @@ def check_single_room(rid: int):
         if stat == "1":
             # 在线心跳
             if redis_stat == "1":
+                r.set(query_rid, 1, ex=120)
                 # LOGGER.info("doki doki")
                 return
 
@@ -32,7 +33,7 @@ def check_single_room(rid: int):
                                          params={"uid": info["data"]["uid"], }).json()
                 user_data = user_resp["data"]["info"]
                 # LOGGER.info("[DD]开播辣")
-                r.set(query_rid, 1)
+                r.set(query_rid, 1, ex=120)
                 message_sent = "[凯撒喵喵-开播广播]\n主播：{}\n传送门：{}".format(user_data["uname"],
                                                                    "https://live.bilibili.com/" + str(
                                                                        rid))
@@ -46,7 +47,7 @@ def check_single_room(rid: int):
         # 离线或轮播 0或2
         else:
             # LOGGER.info("[DD]主播没有在播捏")
-            r.set(query_rid, stat)
+            r.set(query_rid, stat, ex=120)
 
 
 def check_all_players():

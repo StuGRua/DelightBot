@@ -4,9 +4,12 @@ from functools import wraps
 
 import requests
 from flask import request, Flask,g
+
+from internal.dao.redis_bili_cos_pics import get_cos_pics_all
 from internal.service.aliyun_oss import random_audio_zjw
 from internal.service.apis import random_2th_img_resp, random_cos_img_resp
 from internal.service.bili import random_vtb_id, random_response, query_vtb, query_vtb_all, query_player_status_str
+from internal.service.cos.random_cos import random_cos
 from internal.service.jrrp import jrrp
 from internal.service.mc import get_mc_mods_from_gitee, get_ms_status
 from internal.utils.log import LOGGER
@@ -116,7 +119,7 @@ def random_vtb_as_query(request_json):
 
 @quick_reply
 def random_cos_pic(request_json):
-    return random_cos_img_resp()
+    return random_cos()
 
 
 @quick_reply
@@ -175,6 +178,8 @@ def receive():
         return get_mc_mods(rj)
     elif "随机vtb" == _message_replace_at:
         return random_vtb_as_query(rj)
+    elif "随机cos" == _message_replace_at:
+        return random_cos_pic(rj)
     elif "害怕" == _message_replace_at or "我兄弟" in _message_replace_at:
         return random_audio_zjw(rj)
     elif "随机cos" == _message_replace_at:
@@ -200,3 +205,8 @@ def event_handler():
     group_welcome_handler(rj)
     # LOGGER.info("event end")
     return ""
+
+
+@app.route('/all_pics', methods=['GET'])
+def all_pics():
+    return json.dumps(get_cos_pics_all())

@@ -3,10 +3,10 @@ from functools import wraps
 import requests
 import random
 from config import bot_host
+from internal.service.cos.random_cos import random_cos
 from internal.service.srv_list import srv_list
 # 初始化调度器
 from internal.utils.json_reader import json_reader, json_writer
-
 __group = 514394960
 
 
@@ -30,6 +30,7 @@ def chaos_func():
     t["chaos_times"] += 1
     json_writer("static/times.json", t)
     rf = random.randint(0, len(srv_list) - 1)
+    srv_list.append(random_cos)
     resp = srv_list[rf]()
     body = {
         "group_id": __group,

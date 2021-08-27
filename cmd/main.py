@@ -8,6 +8,7 @@ import atexit
 import fcntl
 from internal.utils.log import LOGGER
 from internal.utils.config_to_redis import init_all_config_to_redis
+from internal.job.get_bili_pics import update_cos_pics_to_redis
 
 def start_server():
     f = open("scheduler.lock", "wb")
@@ -17,9 +18,11 @@ def start_server():
         fcntl.flock(f, fcntl.LOCK_EX | fcntl.LOCK_NB)
         scheduler = BackgroundScheduler()
 
-        scheduler.add_job(func=chaos_func, id='apscheduler_chaos', trigger='interval', minutes=45,
+        scheduler.add_job(func=chaos_func, id='apscheduler_chaos', trigger='interval', minutes=30,
                           replace_existing=True)
         scheduler.add_job(func=check_all_players, id='apscheduler_check_all_players', trigger='interval', minutes=0.5,
+                          replace_existing=True)
+        scheduler.add_job(func=update_cos_pics_to_redis, id='apscheduler_update_cos_pics_to_redis', trigger='interval', minutes=60*12,
                           replace_existing=True)
         # scheduler.add_job(func=get_foods_job, id='apscheduler_xcf', trigger='interval', minutes=0.1,
         #                   replace_existing=True)
@@ -27,4 +30,3 @@ def start_server():
     except Exception as e:
         LOGGER.warning("Locked on scheduler.lock")
     app.run(host="0.0.0.0", port=10009, debug=True)
-

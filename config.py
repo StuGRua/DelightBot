@@ -32,3 +32,5 @@ DD_players = {
 DD_groups = [514394960]
 
 welcome_groups = ["514394960"]
+
+cos_cls = [281417]
