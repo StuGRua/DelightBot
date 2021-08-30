@@ -3,7 +3,7 @@ import time
 from functools import wraps
 
 import requests
-from flask import request, Flask,g
+from flask import request, Flask, g
 
 from internal.dao.redis_bili_cos_pics import get_cos_pics_all
 from internal.service.aliyun_oss import random_audio_zjw
@@ -16,6 +16,7 @@ from internal.utils.log import LOGGER
 from internal.service.what_we_eat import query_food
 from internal.service.add_dd_list import add_dd
 from internal.service.event.group_welcome import group_welcome_handler
+
 app = Flask("RBT")
 
 
@@ -27,7 +28,8 @@ def quick_reply(f):
             get_item.append(item)
         _uid = get_item[0]["sender"]["user_id"]
         pre_resp = f(*args, **kwargs)
-        resp = {"reply": "[CQ:at,qq={}] \n".format(str(_uid)) + pre_resp}
+        # resp = {"reply": "[CQ:at,qq={}] \n".format(str(_uid)) + pre_resp}
+        resp = {"reply": pre_resp, "at_sender": True}
         LOGGER.info(str(resp))
         return resp
 
