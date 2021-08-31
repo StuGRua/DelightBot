@@ -1,11 +1,10 @@
 import json
 import time
 from functools import wraps
-
 import requests
 from flask import request, Flask, g
-
 from internal.dao.redis_bili_cos_pics import get_cos_pics_all
+from internal.dao.redis_request_limiter import limiter_user_func
 from internal.service.aliyun_oss import random_audio_zjw
 from internal.service.apis import random_2th_img_resp, random_cos_img_resp
 from internal.service.bili import random_vtb_id, random_response, query_vtb, query_vtb_all, query_player_status_str
@@ -23,6 +22,9 @@ app = Flask("RBT")
 def quick_reply(f):
     @wraps(f)
     def decorated(*args, **kwargs):
+        is_limit = limiter_user_func(g.rj["sender"]["user_id"], f.__name__)
+        if is_limit != 0:
+            return {"reply": "我真的怀疑有的人的闲的程度啊[CD:{}s]".format(is_limit), "at_sender": True}
         get_item = []
         for item in args:
             get_item.append(item)
@@ -30,14 +32,15 @@ def quick_reply(f):
         pre_resp = f(*args, **kwargs)
         # resp = {"reply": "[CQ:at,qq={}] \n".format(str(_uid)) + pre_resp}
         resp = {"reply": pre_resp, "at_sender": True}
-        LOGGER.info(str(resp))
+        # LOGGER.info(str(resp))
         return resp
 
     return decorated
 
 
 @quick_reply
-def srv_jrrp(request_json):
+def srv_jrrp():
+    request_json = g.rj
     uid = request_json["sender"]["user_id"]
     rp, resp_level = jrrp(uid)
     return "今日人品：{}\n{}".format(rp, resp_level)
@@ -69,7 +72,8 @@ def query_510_status():
 
 
 @quick_reply
-def query_specific_vtb(request_json):
+def query_specific_vtb():
+    request_json = g.rj
     _message_replace_at = str(
         request_json["message"].replace("[CQ:at,qq=1728158137]", "").replace("[CQ:at,qq=1728158137] ",
                                                                              "").replace(" ", ""))
@@ -79,7 +83,8 @@ def query_specific_vtb(request_json):
 
 
 @quick_reply
-def query_room_and_player(request_json):
+def query_room_and_player():
+    request_json = g.rj
     _message_replace_at = str(
         request_json["message"].replace("[CQ:at,qq=1728158137]", "").replace("[CQ:at,qq=1728158137] ",
                                                                              "").replace(" ", ""))
@@ -133,7 +138,8 @@ def weibo_hot_now():
 
 
 @quick_reply
-def add_dd_interface(request_json):
+def add_dd_interface():
+    request_json = g.rj
     _message_replace_at = str(
         request_json["message"].replace("[CQ:at,qq=1728158137]", "").replace("[CQ:at,qq=1728158137] ",
                                                                              "").replace(" ", ""))
@@ -156,12 +162,13 @@ def eat_what():
 @app.route('/', methods=['POST'])
 def receive():
     rj = request.json
-    LOGGER.info(str(rj))
+    g.rj = rj
+    # print(g.rj)
     _message_replace_at = rj["message"].replace("[CQ:at,qq=1728158137]", "").replace("[CQ:at,qq=1728158137] ",
                                                                                      "").replace(" ", "")
     LOGGER.info(_message_replace_at)
     if "!jrrp" in _message_replace_at or "！jrrp" in _message_replace_at:
-        return srv_jrrp(rj)
+        return srv_jrrp()
     elif _message_replace_at == "？" or _message_replace_at == "?":
         return resp_your_question_mark()
     elif "来点二次元" in _message_replace_at or "老婆" in _message_replace_at:
@@ -169,9 +176,9 @@ def receive():
     elif "开门" == _message_replace_at:
         return query_510_status()
     elif "查询vtb@" in _message_replace_at:
-        return query_specific_vtb(rj)
+        return query_specific_vtb()
     elif "查询主播-" in _message_replace_at:
-        return query_room_and_player(rj)
+        return query_room_and_player()
     elif "MC" == _message_replace_at.upper():
         return query_minecraft_server()
     elif "MCMOD" == _message_replace_at.upper():
@@ -189,7 +196,7 @@ def receive():
     elif "吃什么" in _message_replace_at:
         return eat_what()
     elif "添加DD=" in _message_replace_at:
-        return add_dd_interface(rj)
+        return add_dd_interface()
     elif "帮帮我" == _message_replace_at or "help" == _message_replace_at:
         return help_me()
     else:
@@ -199,11 +206,8 @@ def receive():
 
 @app.route('/event', methods=['POST'])
 def event_handler():
-    # LOGGER.info("event start")
     rj = request.json
-    # LOGGER.info(str(rj))
     group_welcome_handler(rj)
-    # LOGGER.info("event end")
     return ""
 
 
