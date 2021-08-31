@@ -26,7 +26,7 @@ def quick_reply(f):
         get_item = []
         for item in args:
             get_item.append(item)
-        _uid = get_item[0]["sender"]["user_id"]
+        # _uid = get_item[0]["sender"]["user_id"]
         pre_resp = f(*args, **kwargs)
         # resp = {"reply": "[CQ:at,qq={}] \n".format(str(_uid)) + pre_resp}
         resp = {"reply": pre_resp, "at_sender": True}
@@ -44,7 +44,7 @@ def srv_jrrp(request_json):
 
 
 @quick_reply
-def resp_your_question_mark(request_json):
+def resp_your_question_mark():
     """
 
     :return:
@@ -53,17 +53,15 @@ def resp_your_question_mark(request_json):
 
 
 @quick_reply
-def random_2th_img(request_json):
+def random_2th_img():
     """
-
-    :param request_json:
     :return:
     """
     return random_2th_img_resp()
 
 
 @quick_reply
-def query_510_status(request_json):
+def query_510_status():
     """
     :return:
     """
@@ -91,28 +89,28 @@ def query_room_and_player(request_json):
 
 
 @quick_reply
-def illegal_request(request_json):
+def illegal_request():
     return random_response()
 
 
 @quick_reply
-def query_minecraft_server(request_json):
+def query_minecraft_server():
     return get_ms_status()
 
 
 @quick_reply
-def help_me(request_json):
+def help_me():
     pre_str = "帮助info：\n[CQ:image,file=https://raw.githubusercontent.com/StuGRua/DelightBot/main/static/bot_image/helpme.png]"
     return pre_str
 
 
 @quick_reply
-def get_mc_mods(request_json):
+def get_mc_mods():
     return get_mc_mods_from_gitee()
 
 
 @quick_reply
-def random_vtb_as_query(request_json):
+def random_vtb_as_query():
     r_vtb = random_vtb_id()
     resp = "VTB:{title}\n[CQ:image,file={image}]\n直播间标题：{content}\n直播间链接：https://live.bilibili.com/{roomid}\n".format(
         title=r_vtb["uname"], image=r_vtb["face"], content=r_vtb["title"], roomid=r_vtb['roomid'])
@@ -120,12 +118,12 @@ def random_vtb_as_query(request_json):
 
 
 @quick_reply
-def random_cos_pic(request_json):
+def random_cos_pic():
     return random_cos()
 
 
 @quick_reply
-def weibo_hot_now(request_json):
+def weibo_hot_now():
     wh = json.loads(requests.get("http://api.rosysun.cn/weibo/").content)
     wh = wh["data"]
     resp_str = ""
@@ -151,7 +149,7 @@ def add_dd_interface(request_json):
 
 
 @quick_reply
-def eat_what(request_json):
+def eat_what():
     return query_food()
 
 
@@ -165,38 +163,38 @@ def receive():
     if "!jrrp" in _message_replace_at or "！jrrp" in _message_replace_at:
         return srv_jrrp(rj)
     elif _message_replace_at == "？" or _message_replace_at == "?":
-        return resp_your_question_mark(rj)
+        return resp_your_question_mark()
     elif "来点二次元" in _message_replace_at or "老婆" in _message_replace_at:
-        return random_2th_img(rj)
+        return random_2th_img()
     elif "开门" == _message_replace_at:
-        return query_510_status(rj)
+        return query_510_status()
     elif "查询vtb@" in _message_replace_at:
         return query_specific_vtb(rj)
     elif "查询主播-" in _message_replace_at:
         return query_room_and_player(rj)
     elif "MC" == _message_replace_at.upper():
-        return query_minecraft_server(rj)
+        return query_minecraft_server()
     elif "MCMOD" == _message_replace_at.upper():
-        return get_mc_mods(rj)
+        return get_mc_mods()
     elif "随机vtb" == _message_replace_at:
-        return random_vtb_as_query(rj)
+        return random_vtb_as_query()
     elif "随机cos" == _message_replace_at:
-        return random_cos_pic(rj)
+        return random_cos_pic()
     elif "害怕" == _message_replace_at or "我兄弟" in _message_replace_at:
-        return random_audio_zjw(rj)
+        return random_audio_zjw()
     elif "随机cos" == _message_replace_at:
-        return random_cos_pic(rj)
+        return random_cos_pic()
     elif "微博" in _message_replace_at:
-        return weibo_hot_now(rj)
+        return weibo_hot_now()
     elif "吃什么" in _message_replace_at:
-        return eat_what(rj)
+        return eat_what()
     elif "添加DD=" in _message_replace_at:
         return add_dd_interface(rj)
     elif "帮帮我" == _message_replace_at or "help" == _message_replace_at:
-        return help_me(rj)
+        return help_me()
     else:
         LOGGER.warning("未知命令")
-        return illegal_request(rj)
+        return illegal_request()
 
 
 @app.route('/event', methods=['POST'])
