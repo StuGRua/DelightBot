@@ -39,6 +39,11 @@ def quick_reply(f):
 
 
 @quick_reply
+def tts_message_test():
+    return "[CQ:tts,text=不要停下来啊]"
+
+
+@quick_reply
 def srv_jrrp():
     request_json = g.rj
     uid = request_json["sender"]["user_id"]
@@ -199,6 +204,8 @@ def receive():
         return add_dd_interface()
     elif "帮帮我" == _message_replace_at or "help" == _message_replace_at:
         return help_me()
+    elif "团长你在干什么啊" == _message_replace_at:
+        return tts_message_test()
     else:
         LOGGER.warning("未知命令")
         return illegal_request()
