@@ -16,8 +16,10 @@ from internal.utils.log import LOGGER
 from internal.service.what_we_eat import query_food
 from internal.service.add_dd_list import add_dd
 from internal.service.event.group_welcome import group_welcome_handler
+from config import BotAccount
 
 app = Flask("RBT")
+__at_account = "[CQ:at,qq={}]".format(BotAccount.srv_account)
 
 
 def quick_reply(f):
@@ -29,11 +31,8 @@ def quick_reply(f):
         get_item = []
         for item in args:
             get_item.append(item)
-        # _uid = get_item[0]["sender"]["user_id"]
         pre_resp = f(*args, **kwargs)
-        # resp = {"reply": "[CQ:at,qq={}] \n".format(str(_uid)) + pre_resp}
         resp = {"reply": pre_resp, "at_sender": True}
-        # LOGGER.info(str(resp))
         return resp
 
     return decorated
@@ -80,10 +79,7 @@ def query_510_status():
 @quick_reply
 def query_specific_vtb():
     request_json = g.rj
-    _message_replace_at = str(
-        request_json["message"].replace("[CQ:at,qq=1728158137]", "").replace("[CQ:at,qq=1728158137] ",
-                                                                             "").replace(" ", ""))
-    _name = _message_replace_at.split("查询vtb@")
+    _name = request_json["message"].split("查询vtb@")
     _name = _name[len(_name) - 1]
     return query_vtb(_name)
 
@@ -91,10 +87,7 @@ def query_specific_vtb():
 @quick_reply
 def query_room_and_player():
     request_json = g.rj
-    _message_replace_at = str(
-        request_json["message"].replace("[CQ:at,qq=1728158137]", "").replace("[CQ:at,qq=1728158137] ",
-                                                                             "").replace(" ", ""))
-    _name = _message_replace_at.split("查询主播-")
+    _name = request_json["message"].split("查询主播-")
     _name = _name[len(_name) - 1]
     return query_player_status_str(_name)
 
@@ -146,10 +139,7 @@ def weibo_hot_now():
 @quick_reply
 def add_dd_interface():
     request_json = g.rj
-    _message_replace_at = str(
-        request_json["message"].replace("[CQ:at,qq=1728158137]", "").replace("[CQ:at,qq=1728158137] ",
-                                                                             "").replace(" ", ""))
-    rid = _message_replace_at.split("添加DD=")
+    rid = request_json["message"].split("添加DD=")
     rid = rid[len(rid) - 1]
     res = add_dd(int(rid))
     pre_str = ""
@@ -165,14 +155,20 @@ def eat_what():
     return query_food()
 
 
+def at_bot_message_fixer(rj: dict) -> bool:
+    if "message" not in rj:
+        LOGGER.info("no message in req json")
+        return False
+    rj["message"] = rj["message"].replace(__at_account, "").replace(" ", "")
+    return True
+
+
 @app.route('/', methods=['POST'])
 def receive():
     rj = request.json
     g.rj = rj
-    # print(g.rj)
-    _message_replace_at = rj["message"].replace("[CQ:at,qq=1728158137]", "").replace("[CQ:at,qq=1728158137] ",
-                                                                                     "").replace(" ", "")
-    LOGGER.info(_message_replace_at)
+    at_bot_message_fixer(rj)
+    _message_replace_at = rj["message"]
     if "!jrrp" in _message_replace_at or "！jrrp" in _message_replace_at:
         return srv_jrrp()
     elif _message_replace_at == "？" or _message_replace_at == "?":

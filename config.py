@@ -8,8 +8,13 @@ server_config = {
 bot_host = {
     "main": "http://127.0.0.1:5700"
 }
+
+
 # Maria-Go bot账号
-bot_account = 1728158137
+class BotAccount:
+    cq_account = 1728158137
+    srv_account = 1728158137
+
 
 # mc服务器api/gitee参数
 minecraft_server = {
