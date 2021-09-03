@@ -6,8 +6,9 @@ from flask import request, Flask, g
 from internal.dao.redis_bili_cos_pics import get_cos_pics_all
 from internal.dao.redis_request_limiter import limiter_user_func
 from internal.service.aliyun_oss import random_audio_zjw
-from internal.service.apis import random_2th_img_resp, random_cos_img_resp
-from internal.service.bili import random_vtb_id, random_response, query_vtb, query_vtb_all, query_player_status_str
+from internal.service.apis import random_2th_img_resp
+from internal.service.random_response import random_response
+from internal.service.bili import random_vtb_id, query_vtb, query_player_status_str
 from internal.service.cos.random_cos import random_cos
 from internal.service.jrrp import jrrp
 from internal.service.mc import get_mc_mods_from_gitee, get_ms_status
@@ -190,8 +191,6 @@ def receive():
         return get_mc_mods()
     elif "随机vtb" == _message_replace_at:
         return random_vtb_as_query()
-    elif "随机cos" == _message_replace_at:
-        return random_cos_pic()
     elif "害怕" == _message_replace_at or "我兄弟" in _message_replace_at:
         return random_audio_zjw()
     elif "随机cos" == _message_replace_at:

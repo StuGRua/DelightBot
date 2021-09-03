@@ -30,7 +30,22 @@ DD_players = {
 }
 # 广播的群
 DD_groups = [514394960]
-
+# 欢迎群
 welcome_groups = ["514394960"]
-
+# cos发送群
 cos_cls = [281417]
+# 随机回话
+random_resp = [
+    {
+        "resp_name": "ma_sensei",
+        "content": "李在赣神魔，我怎么听不懂"
+    },
+    {
+        "resp_name": "2233",
+        "content": "这个问题你问萝卜也不会有答案的哦"
+    },
+    {
+        "resp_name": "神奇海螺",
+        "content": "为什么不问一问神奇海螺捏"
+    }
+]

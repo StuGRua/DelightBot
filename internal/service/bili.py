@@ -6,8 +6,6 @@ import time
 from internal.utils.json_reader import json_reader
 from internal.utils.log import LOGGER
 
-bot_resp = json_reader("static/bot_response/bot_resp.json")  # object array
-
 
 def random_vtb_id():
     all_vtb = query_vtb_all()
@@ -26,16 +24,6 @@ def random_vtb_info():
     resp = "VTB:{title}\n[CQ:image,file={image}]\n直播间标题：{content}\n直播间链接：https://live.bilibili.com/{roomid}\n".format(
         title=r_vtb["uname"], image=r_vtb["face"], content=r_vtb["title"], roomid=r_vtb['roomid'])
     return resp
-
-
-def random_response():
-    rd = random.randint(0, len(bot_resp) - 1)
-    resp = bot_resp[rd]["content"]
-    if resp == "随机vtb":
-        resp = random_vtb_info()
-        LOGGER.info(resp)
-    return resp
-
 
 def query_vtb_all():
     full_info = requests.get("https://api.vtbs.moe/v1/fullInfo")
