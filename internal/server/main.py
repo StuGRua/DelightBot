@@ -1,5 +1,4 @@
 import json
-import time
 from functools import wraps
 import requests
 from flask import request, Flask, g
@@ -19,6 +18,7 @@ from internal.service.event.group_welcome import group_welcome_handler
 from config import BotAccount
 
 app = Flask("RBT")
+
 __at_account = "[CQ:at,qq={}]".format(BotAccount.srv_account)
 
 
