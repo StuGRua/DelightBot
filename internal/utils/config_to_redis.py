@@ -6,18 +6,13 @@ from internal.dao.redis_group_welcome import set_greeting_msg
 
 
 def init_all_config_to_redis():
-    init_groups()
     init_dds()
     init_welcome()
 
 
-def init_groups():
-    set_kv_redis("dd_groups", json.dumps(config.DD_groups))
-
-
 def init_dds():
-    gp_values = list(config.DD_players.values())
-    set_kv_redis("DD_rooms", json.dumps(gp_values))
+    gp_values = config.DDRooms
+    set_kv_redis("DDRooms", json.dumps(gp_values))
 
 
 # 初始化启用迎宾的群

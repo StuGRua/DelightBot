@@ -13,5 +13,5 @@ def start_server():
     init_all_config_to_redis()
     init_scheduler()
     app.debug = True
-    server = pywsgi.WSGIServer(('127.0.0.1', 10009), app)
+    server = pywsgi.WSGIServer(('127.0.0.1', 5001), app)
     server.serve_forever()

@@ -140,8 +140,9 @@ def weibo_hot_now():
 def add_dd_interface():
     request_json = g.rj
     rid = request_json["message"].split("添加DD=")
+    print(rid)
     rid = rid[len(rid) - 1]
-    res = add_dd(int(rid))
+    res = add_dd(int(rid), str(request_json["group_id"]))
     pre_str = ""
     if res:
         pre_str += res

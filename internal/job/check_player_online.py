@@ -8,10 +8,9 @@ from internal.service.bili import query_player_from_rid
 from internal.service.robot_send_message import robot_send_group_message
 
 
-def check_single_room(rid: int):
+def check_single_room(gid: int, rid: int):
     """
-    检查房间
-    :param rid: 房间号
+
     """
     info = query_player_from_rid(rid)
     stat = str(info["data"]["live_status"])
@@ -38,12 +37,7 @@ def check_single_room(rid: int):
                                                                    "https://live.bilibili.com/" + str(
                                                                        rid))
                 print(message_sent)
-                groups = json.loads(r.get("dd_groups"))
-                # LOGGER.info("[DD]groups info:{}".format(str(groups)))
-                assert type(groups) == list
-                for gp in groups:
-                    # LOGGER.info(gp)
-                    robot_send_group_message(gp, message_sent)
+                robot_send_group_message(gid, message_sent)
         # 离线或轮播 0或2
         else:
             # LOGGER.info("[DD]主播没有在播捏")
@@ -52,15 +46,17 @@ def check_single_room(rid: int):
 
 def check_all_players():
     with get_conn() as r:
-        DD_rooms_str = r.get("DD_rooms")
-    DD_rooms = json.loads(DD_rooms_str)
-    assert type(DD_rooms) == list
-    if DD_rooms:
-        dd_rooms = DD_rooms
+        dd_rooms_raw = r.get("DDRooms")
+    dd_rooms = json.loads(dd_rooms_raw)
+    assert type(dd_rooms) == dict
+    if dd_rooms:
+        dd_rooms = dd_rooms
     else:
-        dd_rooms = []
-    for item in dd_rooms:
-        check_single_room(item)
+        dd_rooms = dict()
+    for k, v in dd_rooms.items():
+        assert type(v) == list
+        for item in v:
+            check_single_room(int(k), item)
 
 
 if __name__ == "__main__":
