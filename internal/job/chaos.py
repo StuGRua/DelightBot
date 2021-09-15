@@ -4,10 +4,12 @@ import requests
 import random
 from config import bot_host
 from internal.service.cos.random_cos import random_cos
+from internal.job.lolicon_pic import random_lolicon
 from internal.service.srv_list import srv_list
 from internal.dao.redis_chaos import add_chaos_time
 # 初始化调度器
 from internal.utils.json_reader import json_reader, json_writer
+
 __group = 514394960
 
 
@@ -24,12 +26,12 @@ def bot_reply_header(f):
 
 
 def chaos_func():
-    if 1 <= datetime.now().hour <= 8:
+    if 3 <= datetime.now().hour <= 8:
         print("night ver.")
         return
     t = add_chaos_time()
     rf = random.randint(0, len(srv_list) - 1)
-    srv_list.append(random_cos)
+    srv_list.extend([random_cos, random_lolicon])
     resp = srv_list[rf]()
     body = {
         "group_id": __group,
