@@ -9,7 +9,7 @@ from internal.service.apis import random_2th_img_resp
 from internal.service.random_response import random_response
 from internal.service.bili import random_vtb_id, query_vtb, query_player_status_str
 from internal.service.cos.random_cos import random_cos
-from internal.service.jrrp import jrrp
+from internal.service.jrrp import jrrp, jrrp_cal
 from internal.service.mc import get_mc_mods_from_gitee, get_ms_status
 from internal.utils.log import LOGGER
 from internal.service.what_we_eat import query_food
@@ -36,6 +36,14 @@ def quick_reply(f):
         return resp
 
     return decorated
+
+
+@quick_reply
+def jrrp_all():
+    request_json = g.rj
+    group_id = request_json["group_id"]
+    rp = jrrp_cal(group_id)
+    return rp
 
 
 @quick_reply
@@ -156,7 +164,13 @@ def eat_what():
     return query_food()
 
 
+@quick_reply
+def jrrps():
+    return jrrp_cal(g.rj["group_id"])
+
+
 def at_bot_message_fixer(rj: dict) -> bool:
+    print(rj)
     if "message" not in rj:
         LOGGER.info("no message in req json")
         return False
@@ -166,10 +180,12 @@ def at_bot_message_fixer(rj: dict) -> bool:
 
 @app.route('/', methods=['POST'])
 def receive():
-    rj = request.json
+    rj = (json.loads(request.data))
+    print(rj)
     g.rj = rj
     at_bot_message_fixer(rj)
     _message_replace_at = rj["message"]
+    print(_message_replace_at)
     if "!jrrp" in _message_replace_at or "！jrrp" in _message_replace_at:
         return srv_jrrp()
     elif _message_replace_at == "？" or _message_replace_at == "?":
@@ -202,6 +218,8 @@ def receive():
         return help_me()
     elif "团长你在干什么啊" == _message_replace_at:
         return tts_message_test()
+    elif "jrrps" == _message_replace_at:
+        return jrrps()
     else:
         LOGGER.warning("未知命令")
         return illegal_request()

@@ -8,7 +8,7 @@ __group_func_limiter_key = "function_name:group_id:{function_name}:{group_id}"
 def limiter_user_func(userid: int, function_name: str) -> int:
     """
     用户-方法 限速
-    :param userid: 用户名
+    :param userid: 用户id
     :param function_name:限速方法
     :return:0 未限速，TTL 限速剩余时间
     """
@@ -27,7 +27,7 @@ def limiter_user_func(userid: int, function_name: str) -> int:
 def limiter_group_func(group_id: int, function_name: str) -> int:
     """
     群组-方法 限速
-    :param group_id: 用户名
+    :param group_id: 群组id
     :param function_name: 限速方法
     :return:0 未限速，TTL 限速剩余时间
     """

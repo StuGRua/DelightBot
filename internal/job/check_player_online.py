@@ -17,7 +17,7 @@ def check_single_room(gid: int, rid: int)->bool:
     query_rid = "bili_player_status:{}".format(str(rid))
     with get_conn() as r:
         redis_stat = r.get(query_rid)  # 读当前通知状态
-        print(type(redis_stat), redis_stat)
+        # print(type(redis_stat), redis_stat)
         # 在播
         if stat == "1":
             # 在线心跳
@@ -36,7 +36,7 @@ def check_single_room(gid: int, rid: int)->bool:
                 message_sent = "[凯撒喵喵-开播广播]\n主播：{}\n传送门：{}".format(user_data["uname"],
                                                                    "https://live.bilibili.com/" + str(
                                                                        rid))
-                print(message_sent)
+                # print(message_sent)
                 robot_send_group_message(gid, message_sent)
                 return True
         # 离线或轮播 0或2
@@ -55,7 +55,7 @@ def check_single_room_to_groups(gids: list, rid: int):
     query_rid = "bili_player_status:{}".format(str(rid))
     with get_conn() as r:
         redis_stat = r.get(query_rid)  # 读当前通知状态
-        print(type(redis_stat), redis_stat)
+        # print(type(redis_stat), redis_stat)
         # 在播
         if stat == "1":
             # 在线心跳
@@ -74,9 +74,9 @@ def check_single_room_to_groups(gids: list, rid: int):
                 message_sent = "[凯撒喵喵-开播广播]\n主播：{}\n传送门：{}".format(user_data["uname"],
                                                                    "https://live.bilibili.com/" + str(
                                                                        rid))
-                print(message_sent)
+                # print(message_sent)
                 for item in gids:
-                    print(type(item), item)
+                    # print(type(item), item)
                     robot_send_group_message(item, message_sent)
         # 离线或轮播 0或2
         else:
@@ -109,7 +109,7 @@ def check_all_players():
             rooms.add(item)
             groups.add(k)
             rooms_2_gp[item].append(k)
-    print(rooms_2_gp)
+    # print(rooms_2_gp)
     for room,gps in rooms_2_gp.items():
         check_single_room_to_groups(gps,room)
 
