@@ -30,8 +30,8 @@ def chaos_func():
         print("night ver.")
         return
     t = add_chaos_time()
+    srv_list.extend([random_cos])
     rf = random.randint(0, len(srv_list) - 1)
-    srv_list.extend([random_cos, random_lolicon])
     resp = srv_list[rf]()
     body = {
         "group_id": __group,
@@ -42,3 +42,7 @@ def chaos_func():
     except Exception as e:
         pass
     print(body)
+
+
+if __name__ == "__main__":
+    chaos_func()

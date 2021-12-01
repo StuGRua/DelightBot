@@ -11,7 +11,7 @@ def init_scheduler():
 
     scheduler.add_job(func=chaos_func, id='apscheduler_chaos', trigger='interval', minutes=30,
                       replace_existing=True)
-    scheduler.add_job(func=random_cos_to_wx_with_retry, id='apscheduler_chaos', trigger='interval', minutes=30,
+    scheduler.add_job(func=random_cos_to_wx_with_retry, id='apscheduler_wx_cos', trigger='interval', minutes=30,
                       replace_existing=True)
     scheduler.add_job(func=check_all_players, id='apscheduler_check_all_players', trigger='interval', minutes=0.5,
                       replace_existing=True)
