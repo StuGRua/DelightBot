@@ -17,6 +17,8 @@ def jrrp(userid: int):
             time_today = datetime.datetime.now().strftime("%Y-%m-%d")
             rp_str = str(hash(uid + time_today))
             rp = rp_str[len(rp_str) - 2:]
+            # sp:12.25/12.26
+            # rp = 99
             LOGGER.info("jrrp不存在，重新生成：{}".format(rp))
             r.set(name="jrrp:{}".format(uid), value=rp, ex=get_exp_time_4am())
         ttl = r.ttl(name="jrrp:{}".format(uid)) / 3600
@@ -89,6 +91,10 @@ def rp_str(level_name: str, items: List[dict]) -> str:
 
 def get_exp_time_4am() -> int:
     ex = datetime.datetime.now().timetuple()
-    ex_time = datetime.datetime(ex.tm_year, ex.tm_mon, ex.tm_mday) + datetime.timedelta(days=1, hours=4)
+    if ex.tm_hour < 4:
+        # 0-4点
+        ex_time = datetime.datetime(ex.tm_year, ex.tm_mon, ex.tm_mday) + datetime.timedelta(hours=4)
+    else:
+        ex_time = datetime.datetime(ex.tm_year, ex.tm_mon, ex.tm_mday) + datetime.timedelta(days=1, hours=4)
     exp_range_time = int(ex_time.timestamp() - datetime.datetime.now().timestamp())
     return exp_range_time

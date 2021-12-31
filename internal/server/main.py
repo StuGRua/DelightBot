@@ -10,7 +10,7 @@ from internal.service.random_response import random_response
 from internal.service.bili import random_vtb_id, query_vtb, query_player_status_str
 from internal.service.cos.random_cos import random_cos
 from internal.service.jrrp import jrrp, jrrp_cal
-from internal.service.mc import get_mc_mods_from_gitee, get_ms_status
+from internal.service.mc import get_mc_mods_from_gitee, get_ms_status, tps, mc_list
 from internal.utils.log import LOGGER
 from internal.service.what_we_eat import query_food
 from internal.service.add_dd_list import add_dd
@@ -169,6 +169,16 @@ def jrrps():
     return jrrp_cal(g.rj["group_id"])
 
 
+@quick_reply
+def mc_tps():
+    return tps()
+
+
+@quick_reply
+def mc_list_srv():
+    return mc_list()
+
+
 def at_bot_message_fixer(rj: dict) -> bool:
     print(rj)
     if "message" not in rj:
@@ -220,6 +230,10 @@ def receive():
         return tts_message_test()
     elif "jrrps" == _message_replace_at:
         return jrrps()
+    elif "mc_list" == _message_replace_at:
+        return mc_list_srv()
+    elif "mc_tps" == _message_replace_at:
+        return mc_tps()
     else:
         LOGGER.warning("未知命令")
         return illegal_request()
