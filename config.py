@@ -49,8 +49,8 @@ DDRooms = {
 }
 # 欢迎群
 welcome_groups = ["514394960"]
-# cos发送群
-cos_cls = [281417]
+# 专栏list图源s
+cos_cls = [281417, 395874]
 # 随机回话
 random_resp = [
     {
